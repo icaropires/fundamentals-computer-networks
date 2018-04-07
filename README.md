@@ -1,2 +1,2 @@
 # fundamentals-computer-networks
-Contains experiments about computer netoworks
+Contains experiments about computer networks

@@ -1,0 +1,19 @@
+#!/bin/bash
+
+FILE_NAME=$1
+BASE_NAME=$(basename $FILE_NAME)
+BASE_NAME_WITHOUT_EXTENSION=${BASE_NAME%.*}
+
+FLAGS="-pedantic -Wall -std=c11 -I./sockets"
+
+mkdir -p obj &&
+mkdir -p bins &&
+
+OBJ_FILE="obj/$BASE_NAME_WITHOUT_EXTENSION.o"
+COMPILE="gcc $FLAGS"
+
+$COMPILE -c sockets/sockets.c -o obj/sockets.o &&
+$COMPILE -c utils/utils.c -o obj/utils.o &&
+$COMPILE -c $FILE_NAME -o $OBJ_FILE &&
+
+$COMPILE obj/utils.o obj/sockets.o $OBJ_FILE -o bins/$BASE_NAME_WITHOUT_EXTENSION
