@@ -8,15 +8,13 @@ int main(int argc, char *argv[]){
 
         connect_to_socket(sfd, &server_address, sizeof(server_address));
 
-		while(1){
-			Package package = get_filled_package();
+		Package package;
 
-			send_message_to(sfd, &package, sizeof(Package), 0);
-			printf("Package sent to server! Waiting for result...\n");
+		send_message_to(sfd, &package, sizeof(Package), 0);
+		printf("Package sent to server! Waiting for result...\n");
 
-			get_message_from(sfd, &package, sizeof(Package), 0);
-			printf("Result received! Result = '%d'!\n\n", package.result);
-		}
+		get_message_from(sfd, &package, sizeof(Package), 0);
+		printf("Package was sent from server at: %s", package.server_time);
 	} else {
 		fprintf(stderr, "Wrong format. Try: \"%s [IP] [Port]\"\n", argv[0]);
 		return 1;

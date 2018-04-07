@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <signal.h>
+#include <string.h>
 #include "../sockets/sockets.h"
 
 void handle_interrupt(int signal);
@@ -24,20 +25,16 @@ int main(int argc, char *argv[]){
 			printf("Listening to %s:%s. Waiting for connections...\n", argv[1], argv[2]);
 			ACCEPTED_CLIENT = accept_client(sfd, (struct sockaddr_in *) &client_address, sizeof(client_address));
 
-			for(int i = 4; i >= 0; --i) {
-				Package package;
-				get_message_from(ACCEPTED_CLIENT, &package, sizeof(client_address), 0);
+			Package package;
+			get_message_from(ACCEPTED_CLIENT, &package, sizeof(client_address), 0);
 
-				if(package.a != -1 && package.b != -1 && package.operator != '#') {
-					send_message_to_connected(ACCEPTED_CLIENT, &package, sizeof(Package), 0);
+			strcpy(package.server_time, get_local_time());
+			send_message_to(ACCEPTED_CLIENT, &package, sizeof(Package), 0);
 
-					printf("Package sended back to client!\n" "Client %s:%u has more %d calculations\n\n",
-						   inet_ntoa(client_address.sin_addr), ntohs(client_address.sin_port), i);
-				}
-			}
+			printf("Package sended back to client!\n");
 
 			close(ACCEPTED_CLIENT);
-			printf("Client %s:%u was disconected\n", inet_ntoa(client_address.sin_addr), ntohs(client_address.sin_port));
+			printf("Client %s:%u was disconected\n\n", inet_ntoa(client_address.sin_addr), ntohs(client_address.sin_port));
 		}
 	} else {
 		fprintf(stderr, "Wrong format. Try: \"%s [IP] [Port]\"\n", argv[0]);
