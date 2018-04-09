@@ -40,13 +40,6 @@ void bind_socket(int socket, const struct sockaddr *address, socklen_t address_l
 	}
 }
 
-void listen_to_socket(int sfd) {
-    if (listen(sfd, QUEUE_LENGHT) < 0) {
-        perror("Couldn't start listening to socket");
-        exit(1);
-    }
-}
-
 void connect_to_socket(int sfd, const struct sockaddr_in *server_address, socklen_t address_len){
     if (connect(sfd, (const struct sockaddr *) server_address, address_len) < 0) {
         perror("Couldn't connect with server");
@@ -54,28 +47,15 @@ void connect_to_socket(int sfd, const struct sockaddr_in *server_address, sockle
     }
 }
 
-int accept_client(int sfd, struct sockaddr_in *client_address, socklen_t address_len){
-    int accepted_client = accept(sfd, (struct sockaddr *) client_address, &address_len);
-
-    if (accepted_client >= 0){
-        printf("Client %s:%u connected\n", inet_ntoa(client_address->sin_addr), ntohs(client_address->sin_port));
-    } else {
-        perror("Couldn't accept client");
-        exit(1);
-    }
-
-    return accepted_client;
-}
-
-void send_message_to(int sfd, const Package *package, size_t lenght, int flags){
-    int bytes_sended = send(sfd, package, lenght, flags);
+void send_message_to(int sfd, const Package *package, int flags, const struct sockaddr *dest_addr, socklen_t dest_len){
+    int bytes_sended = sendto(sfd, package, sizeof(Package), flags, dest_addr, dest_len);
 
     if (bytes_sended < 0)
         perror("Couldn't send package");
 }
 
-void get_message_from(int sfd, Package *package, size_t lenght, int flags){
-	int bytes_received = recv(sfd, package, sizeof(Package), flags);
+void get_message_from(int sfd, Package *package, int flags, struct sockaddr *dest_addr, socklen_t dest_len){
+    int bytes_received = recvfrom(sfd, package, sizeof(Package), flags, dest_addr, &dest_len);
 
 	if (bytes_received < 0){
 		perror("Couldn't receive package");	

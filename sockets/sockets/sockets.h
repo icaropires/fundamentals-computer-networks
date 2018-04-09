@@ -23,8 +23,8 @@ void connect_to_socket(int sfd, const struct sockaddr_in *server_address, sockle
 
 int accept_client(int sfd, struct sockaddr_in *client_address, socklen_t address_len);
 
-void send_message_to(int sfd, const Package *package, size_t lenght, int flags);
+void send_message_to(int sfd, const Package *package, int flags, const struct sockaddr *dest_addr, socklen_t dest_len);
 
-void get_message_from(int sfd, Package *package, size_t lenght, int flags);
+void get_message_from(int sfd, Package *package, int flags, struct sockaddr *dest_addr, socklen_t dest_len);
 
 #endif  // SOCKETS_H_
