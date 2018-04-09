@@ -24,10 +24,11 @@ int main(int argc, char *argv[]){
 			printf("Listening to %s:%s. Waiting for messages...\n", argv[1], argv[2]);
 
 			Package package;
-			get_message_from(sfd, &package, 0, (struct sockaddr *) &client_address, sizeof(Package));
+			Header header = {sfd, &package, 0, (struct sockaddr*) &client_address, sizeof(Package)};
+			get_message_from(&header);
 
-			strcpy(package.server_time, get_local_time());
-			send_message_to(sfd, &package, 0, (struct sockaddr *) &client_address, sizeof(Package));
+			strcpy(package.server_time, get_formated_time());
+			send_message_to(&header);
 
 			printf("Package sended back to client %s:%u!\n\n", inet_ntoa(client_address.sin_addr), ntohs(client_address.sin_port));
 		}
