@@ -47,15 +47,15 @@ void connect_to_socket(int sfd, const struct sockaddr_in *server_address, sockle
     }
 }
 
-void send_message_to(int sfd, const Package *package, int flags, const struct sockaddr *dest_addr, socklen_t dest_len){
-    int bytes_sended = sendto(sfd, package, sizeof(Package), flags, dest_addr, dest_len);
+void send_message_to(Header *header){
+    int bytes_sended = sendto(header->sfd, header->package, sizeof(Package), header->flags, header->address, header->dest_len);
 
     if (bytes_sended < 0)
         perror("Couldn't send package");
 }
 
-void get_message_from(int sfd, Package *package, int flags, struct sockaddr *dest_addr, socklen_t dest_len){
-    int bytes_received = recvfrom(sfd, package, sizeof(Package), flags, dest_addr, &dest_len);
+void get_message_from(Header *header){
+  int bytes_received = recvfrom(header->sfd, header->package, sizeof(Package), header->flags, header->address, &(header->dest_len));
 
 	if (bytes_received < 0){
 		perror("Couldn't receive package");	
