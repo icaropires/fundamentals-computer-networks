@@ -5,6 +5,8 @@
 #include <stdlib.h>
 #include <sys/socket.h>
 #include <arpa/inet.h>
+#include <sys/time.h>
+#include <errno.h>
 #include "../utils/utils.h"
 
 #define QUEUE_LENGHT 5
@@ -22,5 +24,7 @@ void connect_to_socket(int sfd, const struct sockaddr_in *server_address, sockle
 void send_message_to(Header *header);
 
 void get_message_from(Header *header);
+
+void set_timeout(int sfd, int time_to_timeout);
 
 #endif  // SOCKETS_H_

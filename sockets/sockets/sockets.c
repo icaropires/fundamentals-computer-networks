@@ -41,23 +41,38 @@ void bind_socket(int socket, const struct sockaddr *address, socklen_t address_l
 }
 
 void connect_to_socket(int sfd, const struct sockaddr_in *server_address, socklen_t address_len){
-    if (connect(sfd, (const struct sockaddr *) server_address, address_len) < 0) {
-        perror("Couldn't connect with server");
-        exit(1);
-    }
+	if (connect(sfd, (const struct sockaddr *) server_address, address_len) < 0) {
+		perror("Couldn't connect with server");
+		exit(1);
+	}
 }
 
 void send_message_to(Header *header){
-    int bytes_sended = sendto(header->sfd, header->package, sizeof(Package), header->flags, header->address, header->dest_len);
+	int bytes_sended = sendto(header->sfd, header->package, sizeof(Package), header->flags, header->address, header->dest_len);
 
-    if (bytes_sended < 0)
-        perror("Couldn't send package");
+	if (bytes_sended < 0)
+		perror("Couldn't send package");
 }
 
 void get_message_from(Header *header){
-  int bytes_received = recvfrom(header->sfd, header->package, sizeof(Package), header->flags, header->address, &(header->dest_len));
+	int bytes_received = recvfrom(header->sfd, header->package, sizeof(Package), header->flags, header->address, &(header->dest_len));
 
-	if (bytes_received < 0){
+	const int TIMEOUT_CODE = 11;
+	if (errno == TIMEOUT_CODE){
+		fprintf(stderr, "Timed out!!!\n");
+	} else if(bytes_received < 0){
 		perror("Couldn't receive package");	
+	}
+}
+
+void set_timeout(int sfd, int time_to_timeout){
+	struct timeval time;
+	time.tv_usec = 0;
+	time.tv_sec = time_to_timeout;
+
+	int error = setsockopt(sfd, SOL_SOCKET, SO_RCVTIMEO, &time, sizeof(time));
+
+	if(error){
+		perror("Couldn't set timeout value");
 	}
 }

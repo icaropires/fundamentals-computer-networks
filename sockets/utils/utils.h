@@ -4,12 +4,14 @@
 #include <stdio.h>
 #include <unistd.h>
 #include <time.h>
+#include <string.h>
 #include <sys/socket.h>
 
 #define TIME_SIZE 25
+#define SEC_TO_TIMEOUT 1
 
 typedef struct pdu {
-    char server_time[TIME_SIZE];
+	char server_time[TIME_SIZE];
 } Package;
 
 typedef struct header {

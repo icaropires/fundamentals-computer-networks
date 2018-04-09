@@ -21,16 +21,20 @@ int main(int argc, char *argv[]){
 		while(1){
 			struct sockaddr_in client_address;
 
-			printf("Listening to %s:%s. Waiting for messages...\n", argv[1], argv[2]);
+			// printf("Listening to %s:%s. Waiting for messages...\n", argv[1], argv[2]);
 
 			Package package;
 			Header header = {sfd, &package, 0, (struct sockaddr*) &client_address, sizeof(Package)};
 			get_message_from(&header);
 
 			strcpy(package.server_time, get_formated_time());
+
+			// To force timeout
+			// int aux = 0; for(int i = 0; i < SEC_TO_TIMEOUT * 1e9; i++){++aux; --aux;}
+
 			send_message_to(&header);
 
-			printf("Package sended back to client %s:%u!\n\n", inet_ntoa(client_address.sin_addr), ntohs(client_address.sin_port));
+			// printf("Package sended back to client %s:%u!\n\n", inet_ntoa(client_address.sin_addr), ntohs(client_address.sin_port));
 		}
 	} else {
 		fprintf(stderr, "Wrong format. Try: \"%s [IP] [Port]\"\n", argv[0]);
