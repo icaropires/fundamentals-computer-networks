@@ -4,11 +4,26 @@
 #include <stdio.h>
 #include <unistd.h>
 #include <time.h>
+#include <sys/socket.h>
+
+#define TIME_SIZE 25
 
 typedef struct pdu {
-    char server_time[30];
+    char server_time[TIME_SIZE];
 } Package;
 
-char* get_local_time();
+typedef struct header {
+	int sfd;
+	Package *package;
+	int flags;
+	struct sockaddr *address;
+	socklen_t dest_len;
+} Header;
+
+struct tm* get_local_time();
+
+char* format_timeinfo(struct tm* timeinfo);
+
+char* get_formated_time();
 
 #endif  // UTILS_H_
