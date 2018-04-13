@@ -67,6 +67,7 @@ void get_message_from(Header *header){
 
 void set_timeout(int sfd, int time_to_timeout){
 	struct timeval time;
+
 	time.tv_usec = 0;
 	time.tv_sec = time_to_timeout;
 
