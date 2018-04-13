@@ -27,24 +27,24 @@ o comando `./bins/udp_client rtt [ip] [porta]` para o cálculo do RTT ou `./bins
 
 ### Comportamento normal do cálculo do RTT
 
-<img src="client_rtt.png" />
+<img src="https://github.com/icaropires/fundamentals-computer-networks/blob/master/sockets/images/client_rtt.png" />
 
 ### Exemplo de timeout
 
-<img src="client_rtt_error.png" />
+<img src="https://github.com/icaropires/fundamentals-computer-networks/blob/master/sockets/images/client_rtt_error.png" />
 
 ### Comportamento normal da resolução de nomes
 
-<img src="client_rsv.png" />
+<img src="https://github.com/icaropires/fundamentals-computer-networks/blob/master/sockets/images/client_rsv.png" />
 
 ### Exemplo de falha na resolução
 
-<img src="client_rsv_error.png" />
+<img src="https://github.com/icaropires/fundamentals-computer-networks/blob/master/sockets/images/client_rsv_error.png" />
 
 ### Chamada incorreta do programa
 
-<img src="input_error_treatment.png" />
+<img src="https://github.com/icaropires/fundamentals-computer-networks/blob/master/sockets/images/input_error_treatment.png" />
 
 ### Servidor esperando requisições
 
-<img src="server.png" />
+<img src="https://github.com/icaropires/fundamentals-computer-networks/blob/master/sockets/images/server.png" />
