@@ -1,3 +1,5 @@
+Alunos: Ícaro Pires (15/0129815) e João Robson (15/0154003)
+
 # Configuração NAT e DHCP
 
 ## Sistema operacional utilizado
@@ -160,29 +162,34 @@ FreeBSD 11.1
 #### Configurando estrutura dos diretórios
 
 * Criando a pasta
-`# mkdir /usr/local/etc/openvpn` </br>
+```
+# mkdir /usr/local/etc/openvpn
+```
 
 * Copiando arquivos de exemplo
-`# cp /usr/local/share/examples/openvpn/sample-config-files/server.conf /usr/local/etc/openvpn/openvpn.conf`
+```
+# cp /usr/local/share/examples/openvpn/sample-config-files/server.conf /usr/local/etc/openvpn/openvpn.conf
+```
 
 * Copiando arquivos de configuração do easy-rsa
-`# cp -r /usr/local/share/easy-rsa /usr/local/etc/openvpn/easy-rsa`
+```
+# cp -r /usr/local/share/easy-rsa /usr/local/etc/openvpn/easy-rsa
+```
 
 * Configurando Easy-RSA
 
     * Editando arquivo de configuração
-        `vim /usr/local/etc/openvpn/easy-rsa/vars`
+		* Mude as seguintes variáveis para os valores corretos
+			```
+			set_var EASYRSA_REQ_COUNTRY "BR"
+			set_var EASYRSA_REQ_PROVINCE "Distrito Federal"
+			set_var EASYRSA_REQ_CITY "Gama"
+			set_var EASYRSA_REQ_ORG	"University of Brasilia"
+			set_var EASYRSA_REQ_EMAIL "me@example.net"
+			set_var EASYRSA_REQ_OU "FGA"
+			```
 
-        ```
-        set_var EASYRSA_REQ_COUNTRY "BR"
-        set_var EASYRSA_REQ_PROVINCE "Distrito Federal"
-        set_var EASYRSA_REQ_CITY "Gama"
-        set_var EASYRSA_REQ_ORG	"University of Brasilia"
-        set_var EASYRSA_REQ_EMAIL "me@example.net"
-        set_var EASYRSA_REQ_OU "FGA"
-
-        ```
-    * Pode-se personalizar mais alguns aspectos como a expiração do certificado, tamanho da chave, etc.
+    * Pode-se personalizar mais alguns aspectos como o prazo para expiração do certificado, tamanho da chave, etc.
 
 #### Gerando as chaves
 
@@ -206,7 +213,6 @@ sh
 ./easyrsa.real build-ca
 ./easyrsa.real build-server-full openvpn-server
 ```
-
 
 * Agora insira as informações solicitadas para que o certificado seja gerado
 
@@ -240,7 +246,7 @@ mkdir /usr/local/etc/openvpn/keys/
 
 * Copie os arquivos `dh.pem`, `ca.crt`, `openvpn-server.crt` e `openvpn-server.key` para a pasta `keys/`
 
-#### Editando arquivo de configuração do servidor
+### Editando arquivo de configuração do servidor
 
 * No arquivo `/usr/local/etc/openvpn/openvpn.conf` descomente as linhas:
 
@@ -297,13 +303,11 @@ E prossiga com a instalação
 
 ### Configuração do openvpn
 
-* Copie o arquivo `/usr/share/openvpn/examples/client.conf`
-para `/etc/openvpn/client/`
+* Copie o arquivo `/usr/share/openvpn/examples/client.conf` para `/etc/openvpn/client/`
 
 ### Editando arquivo de configuração do cliente
 
 * Abra o arquivo `client.conf`
-
 
 ```
 askpass /usr/local/etc/openvpn/pass.pass # adicione esta linha
@@ -313,19 +317,37 @@ key /usr/local/etc/openvpn/keys/openvpn-server.key
 ```
 Onde pass.pass é um arquivo com a senha que você criou
 
-* Edite a linha `remote my-server-1 1194` para `remote 172.16.0.1 1194` onde o `172.16.0.1` é o IP do servidor e `1194` a porta
+* Edite a linha `remote my-server-1 1194` para `remote 192.168.133.216 1194` onde o `192.168.133.216` é o IP da interface externa do servidor e `1194` a porta
+* Se a linha `dev tun` estiver descomentada, comente-a
+* Altere a linha `dev tap` para `dev tap0` e a descomente
 
-### Ativando openvpn
+## Ativando openvpn
 
 * Execute os comandos a seguir no servidor para que a VPN seja inicializada durante o boot
 ```
 sysrc openvpn_enable="YES"
-sysrc openvpn_if="tun"
+sysrc openvpn_if="tap"
 ```
+
+## Configurando bridge
+```
+sysrc cloned_interfaces="bridge0 tap0"
+sysrc ifconfig_bridge0="inet 172.16.0.1 netmask 255.255.0.0"
+sysrc ifconfig_tap0="inet 172.16.0.4 netmask 255.255.0.0"
+sysrc ifconfig_bridge0="addm rl0 addm tap0 up"
+```
+Onde rl0 é a interface do roteador da rede LAN
 
 * Os argumentos de sysrc serão adicionados em `/etc/rc.conf`
 
-### Configurando o logging
+* reinicie o serviço de internet com o comando `service netif restart`
+
+* se as interfaces não estiverem na bridge, adicione-as manualmente com o comando
+```
+# ifconfig bridge0 addm rl0 addm tap0 up
+```
+
+## Configurando o logging
 
 * Adicione
 ```
@@ -350,7 +372,7 @@ No lista de arquivos de log. Há explicações sobre o que significa cada parâm
 ```
 
 
-### Inicializando openvpn no servidor
+## Inicializando openvpn no servidor
 * Execute o seguinte comando para inicializar o openvpn no servidor
 ```
 # service openvpn start
@@ -358,7 +380,7 @@ No lista de arquivos de log. Há explicações sobre o que significa cada parâm
 
 * Agora o comando `ifconfig` já deve mostrar a interface tun0 (nome default) entre as interfaces de rede existentes
 
-### Inicializando openvpn no cliente
+## Inicializando openvpn no cliente
 
 * Para inicializar o openvpn no cliente o seguinte comando pode ser utilizado:
 
@@ -415,7 +437,7 @@ ipfw -q add 00300 deny ip from 127.0.0.0/8 to any
 * Para bloquear o ping, adicione a linha:
 
 ```
-ipfw -q add 00100 deny log icmp from any to any out via rl0
+ipfw -q add 00100 deny log icmp from 172.16.0.0/16 to any via rl0
 ```
 onde log é para habilitar o log e rl0 é a interface do gateway que interage com a LAN.
 
@@ -474,7 +496,7 @@ onde 00:30:67:b8:fe:77 é o endereço MAC da máquina do servidor, 172.16.0.3 é
 
 * Para validação do redirecionamento da porta que server o serviço HTTPS, foi validado de forma semelhante apenas alterando a URL para `https://192.168.133.216`
 
-## Validação do firewall_logging
+## Validação do firewall (Pinging)
 
 * Através de testes com computadores conectados na LAN, foi possível verificar a possibilidade de pingar computadores de dentro da LAN, mas nenhum de fora, incluindo os roteadore das redes "LDS_Experimentos" e "LDS_UED". Além disso, também era possível pingar através de computadores externos o gateway da LAN.
 
@@ -482,6 +504,24 @@ onde 00:30:67:b8:fe:77 é o endereço MAC da máquina do servidor, 172.16.0.3 é
 
 ## Validação da VPN
 
-* Após todos equipamentos conectados, na máquina servidora com o comando `tcpdump` foi possível verificar que todos os pacotes que saiam da máquina cliente passavam pela interface criada (tun0).
+* No server é possível verificar que serviço da vpn está sendo executado com o comando
+```
+# service openvpn status
+```
 
-* Em outras interfaces, também foi possível verificar como os pacotes saiam para WAN. Na interface rl0, que interage diretamente com a VPN foi observado que todos os pacotes saiam com origem indicada apenas como "openvpn" e encapsulados em pacotes "UDP" (configuração padrão do openvpn)
+* No client é possível verificar que o serviço da vpn está sendo executado com o comando e a ocorrência de erros com o comando
+```
+# systemctl status openvpn-client@client
+```
+
+* o cliente estava conectado na rede 192.168.133.0, rede em que a interface externa do roteador estava conectado
+
+* o client recebeu uma interface virtual `tap0` e um IP no range correto (172.16.0.2)
+
+* do cliente era possível pingar a interface interna do computador roteador (172.16.0.1), que possui o mesmo endereço da bridge
+
+* do computador roteador era possível pingar a interface interna do cliente (172.16.0.2)
+
+* do cliente era possível acessar o serviço de um servidor presente na LAN através de seu IP interno a LAN (172.16.0.3)
+
+Portante, a rede virtual criada pela vpn permitiu que um cliente externo se conectasse diretamente na rede LAN interna através apenas do IP público (visível da rede onde o cliente estava) e acessasse todos os dispositivos lá presentes. Como pode ser validado nos testes
